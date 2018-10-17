@@ -7,39 +7,31 @@
 
         <variable
             name="user"
-            type="com.wzx.mvvmdemo.model.bean.User" />
+            type="com.wzx.javaapp.User" />
     </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
+        android:layout_height="40dp"
         android:background="@{user.colorId}"
-        android:paddingBottom="12dp"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="12dp">
+        android:paddingRight="16dp">
 
         <TextView
-            android:id="@+id/nameTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_person_gray_24dp"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:text='@{user.name}'
+            android:text="@{user.name}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="用户名" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_create_time_gray_24dp"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:text='@{user.createTime}'
+            android:text="@{user.createTime}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nameTV"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="创建日期" />
 
     </android.support.constraint.ConstraintLayout>

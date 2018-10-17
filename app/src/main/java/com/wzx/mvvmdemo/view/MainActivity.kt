@@ -1,10 +1,12 @@
-package com.wzx.mvvmdemo
+package com.wzx.mvvmdemo.view
 
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import com.wzx.mvvmdemo.viewmodel.MainViewModel
+import com.wzx.mvvmdemo.R
 import com.wzx.mvvmdemo.databinding.ActivityMainBinding
 
 /**
@@ -28,16 +30,18 @@ class MainActivity : AppCompatActivity() {
         val dataBinding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
         dataBinding.viewModel = viewModel
+
+        viewModel.let {
+            it.subscribe(this@MainActivity)
+        }
+
+
     }
 
     override fun onResume() {
         super.onResume()
 
         Log.i(TAG, "onResume")
-
-        viewModel.let {
-            it.subscribe(this@MainActivity)
-        }
     }
 
     override fun onPause() {

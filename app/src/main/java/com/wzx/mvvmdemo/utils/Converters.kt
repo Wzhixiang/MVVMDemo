@@ -1,4 +1,4 @@
-package com.wzx.mvvmdemo
+package com.wzx.mvvmdemo.utils
 
 import android.databinding.BindingConversion
 import android.graphics.drawable.ColorDrawable
@@ -34,3 +34,4 @@ fun colorIdToDrawable(@ColorInt colorId: Int?): ColorDrawable {
         return ColorDrawable(colorId!!)
     }
 }
+

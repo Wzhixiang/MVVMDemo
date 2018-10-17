@@ -1,4 +1,4 @@
-package com.wzx.mvvmdemo
+package com.wzx.mvvmdemo.utils
 
 import android.databinding.BindingAdapter
 import android.support.annotation.NonNull
@@ -16,8 +16,8 @@ import android.support.v7.widget.RecyclerView
  */
 class BindingAdapterRecyclerView {
 
-    @BindingAdapter("app:adapter", "app:laoutManager")
-    fun initRecycler(@NonNull recyclerView: RecyclerView,
+    @BindingAdapter("adapter", "laoutManager")
+    open fun initRecycler(@NonNull recyclerView: RecyclerView,
                      @NonNull adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
                      @Nullable layoutManager: RecyclerView.LayoutManager?) {
         recyclerView.layoutManager = layoutManager ?: LinearLayoutManager(recyclerView.context)
