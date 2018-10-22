@@ -17,7 +17,7 @@ import com.wzx.mvvmdemo.databinding.ItemUserBinding
  * 更新时间：
  * 更新内容：
  */
-class UserAdapter : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class UserAdapter(private var listener: OnItemClickListener<User>?) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
     private var data = arrayListOf<User>()
 
@@ -34,6 +34,17 @@ class UserAdapter : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
         else
             user.colorId = ContextCompat.getColor(holder.itemView.context, R.color.colorPrimary)
 
+        //listener.let == if(listener!=null)
+        listener.let {
+            holder.dataBinding.root.setOnClickListener { itemView ->
+                it?.onItemClick(itemView, position, data[position])
+            }
+            holder.dataBinding.root.setOnLongClickListener { itemView ->
+                it?.onItemLongClick(itemView, position, data[position])
+                true
+            }
+        }
+
         holder.dataBinding.user = user
         //执行绑定
         holder.dataBinding.executePendingBindings()
@@ -42,7 +53,7 @@ class UserAdapter : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
     fun addData(users: ArrayList<User>) {
         data.clear()
         data.addAll(users)
-        notifyDataSetChanged()
+        this.notifyDataSetChanged()
     }
 
     class UserViewHolder(var dataBinding: ItemUserBinding) : RecyclerView.ViewHolder(dataBinding.root)

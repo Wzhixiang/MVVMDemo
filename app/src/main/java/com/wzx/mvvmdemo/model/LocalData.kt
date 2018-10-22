@@ -20,7 +20,7 @@ class LocalData(@NonNull var context: Context) : IUser {
     private val dataBase: DataBase = DataBase.getInstance(context)
 
     @WorkerThread
-    override fun getUsers(): Observable<List<User>> {
+    override fun queryUsers(): Observable<List<User>> {
         return Observable.create({
             val list = dataBase.userDao().queryAll()
             if (list == null) it.onError(Throwable("暂无用户数据")) else {
@@ -31,7 +31,7 @@ class LocalData(@NonNull var context: Context) : IUser {
     }
 
     @WorkerThread
-    override fun addUser(user: User): Observable<Boolean> {
+    override fun insertUser(user: User): Observable<Boolean> {
         return Observable.create({
             val state = dataBase.userDao().insertUser(user)
             if (state == null) it.onError(Throwable("写入数据失败")) else {
@@ -40,6 +40,34 @@ class LocalData(@NonNull var context: Context) : IUser {
                     it.onComplete()
                 } else {
                     it.onError(Throwable("写入数据失败"))
+                }
+            }
+        })
+    }
+
+    override fun deleteUser(user: User): Observable<Boolean> {
+        return Observable.create({
+            val state = dataBase.userDao().delectUser(user)
+            if (state == null) it.onError(Throwable("删除失败")) else {
+                if (state > 0) {
+                    it.onNext(true)
+                    it.onComplete()
+                } else {
+                    it.onError(Throwable("删除失败"))
+                }
+            }
+        })
+    }
+
+    override fun updateUser(user: User): Observable<Boolean> {
+        return Observable.create({
+            val state = dataBase.userDao().updateUser(user)
+            if (state == null) it.onError(Throwable("更新失败")) else {
+                if (state > 0) {
+                    it.onNext(true)
+                    it.onComplete()
+                } else {
+                    it.onError(Throwable("更新失败"))
                 }
             }
         })

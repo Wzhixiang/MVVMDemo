@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * 描述：转换类
+ * 描述：DataBinding 类型转换
  *
  * 创建人： Administrator
  * 创建时间： 2018/10/16

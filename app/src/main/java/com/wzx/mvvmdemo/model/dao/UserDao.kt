@@ -1,9 +1,6 @@
 package com.wzx.mvvmdemo.model.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 import com.wzx.mvvmdemo.model.bean.User
 
 /**
@@ -22,5 +19,11 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(user: User): Long
+
+    @Delete
+    fun delectUser(user: User): Int
+
+    @Update
+    fun updateUser(user: User): Int
 
 }

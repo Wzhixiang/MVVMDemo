@@ -6,6 +6,14 @@
     <data>
 
         <variable
+            name="layoutManager"
+            type="android.support.v7.widget.RecyclerView.LayoutManager" />
+
+        <variable
+            name="adapter"
+            type="android.support.v7.widget.RecyclerView.Adapter" />
+
+        <variable
             name="viewModel"
             type="com.wzx.mvvmdemo.viewmodel.MainViewModel" />
 
@@ -31,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{viewModel::addUser}"
-            android:text="add"
+            android:text="添加"
             app:layout_constraintRight_toRightOf="parent" />
 
         <android.support.v7.widget.RecyclerView
@@ -39,10 +47,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:adapter="@{viewModel.adapter}"
-            app:layoutManager="@{viewModel.layoutManager}"
+            app:layoutManager="@{layoutManager}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nameET"
-            app:layout_constraintVertical_weight="1" />
+            app:layout_constraintVertical_weight="1"
+            tools:listitem="@layout/item_user" />
 
     </android.support.constraint.ConstraintLayout>
 

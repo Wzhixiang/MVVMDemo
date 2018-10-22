@@ -4,7 +4,7 @@ import android.arch.persistence.room.TypeConverter
 import java.util.*
 
 /**
- * 描述：
+ * 描述：RoomDataBase 类型转换
  *
  * 创建人： Administrator
  * 创建时间： 2018/10/17

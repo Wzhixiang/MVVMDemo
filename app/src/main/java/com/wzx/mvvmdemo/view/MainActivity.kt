@@ -1,13 +1,20 @@
 package com.wzx.mvvmdemo.view
 
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import com.wzx.mvvmdemo.viewmodel.MainViewModel
 import com.wzx.mvvmdemo.R
 import com.wzx.mvvmdemo.databinding.ActivityMainBinding
+import com.wzx.mvvmdemo.view.UserDetailActivity.Companion.Request_Code
+import com.wzx.mvvmdemo.view.UserDetailActivity.Companion.Response_Code
+import com.wzx.mvvmdemo.view.adapter.UserAdapter
+import com.wzx.mvvmdemo.viewmodel.MainViewModel
 
 /**
  * MainActivity只是负责引用布局样式
@@ -29,13 +36,27 @@ class MainActivity : AppCompatActivity() {
         //使用DataBindingUtil设定布局
         val dataBinding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
+        dataBinding.layoutManager = LinearLayoutManager(this)
+
         dataBinding.viewModel = viewModel
 
         viewModel.let {
             it.subscribe(this@MainActivity)
         }
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
+        if (requestCode == Request_Code && resultCode == Response_Code) {
+            viewModel.dataChange?.value = true
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        Log.i(TAG, "onStart")
     }
 
     override fun onResume() {

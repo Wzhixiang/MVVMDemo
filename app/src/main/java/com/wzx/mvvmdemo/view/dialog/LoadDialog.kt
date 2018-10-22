@@ -1,10 +1,8 @@
 package com.wzx.mvvmdemo.view.dialog
 
-import android.app.DialogFragment
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDialogFragment
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +31,7 @@ class LoadDialog : AppCompatDialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+
         val dataBinding = DataBindingUtil.inflate<DialogLoadBinding>(inflater, R.layout.dialog_load, container, false)
 
         dataBinding.viewModel = viewModel

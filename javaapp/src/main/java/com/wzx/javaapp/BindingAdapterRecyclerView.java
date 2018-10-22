@@ -17,11 +17,11 @@ import android.support.v7.widget.RecyclerView;
 
 public class BindingAdapterRecyclerView {
 
-    @BindingAdapter({"adapter", "laoutManager"})
-    public static void initRecycler(@NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.Adapter<RecyclerView.ViewHolder> adapter,
-                                    @Nullable RecyclerView.LayoutManager layoutManager) {
-        recyclerView.setLayoutManager(layoutManager == null ? new LinearLayoutManager(recyclerView.getContext()) : layoutManager);
-        recyclerView.setAdapter(adapter);
-    }
+//    @BindingAdapter({"adapter", "laoutManager"})
+//    public static void initRecycler(@NonNull RecyclerView recyclerView,
+//                                    @NonNull RecyclerView.Adapter<RecyclerView.ViewHolder> adapter,
+//                                    @Nullable RecyclerView.LayoutManager layoutManager) {
+//        recyclerView.setLayoutManager(layoutManager == null ? new LinearLayoutManager(recyclerView.getContext()) : layoutManager);
+//        recyclerView.setAdapter(adapter);
+//    }
 }

@@ -4,7 +4,10 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.databinding.BaseObservable
 import android.databinding.Bindable
+import android.os.Parcel
+import android.os.Parcelable
 import com.wzx.mvvmdemo.BR
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -21,7 +24,7 @@ import java.util.*
  * 更新内容：
  */
 @Entity
-data class User(@PrimaryKey var id: Int? = null) : BaseObservable() {
+data class User(@PrimaryKey var id: Int? = null) : BaseObservable(), Serializable {
 
     var name: String? = null
         @Bindable

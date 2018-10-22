@@ -1,14 +1,18 @@
 package com.wzx.mvvmdemo.viewmodel
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.content.Context
+import android.content.Intent
 import android.databinding.ObservableField
 import android.support.annotation.NonNull
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.FragmentManager
 import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
@@ -16,9 +20,13 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.wzx.mvvmdemo.BaseObserver
+import com.wzx.mvvmdemo.R
 import com.wzx.mvvmdemo.model.LocalData
 import com.wzx.mvvmdemo.model.bean.User
 import com.wzx.mvvmdemo.view.MainActivity
+import com.wzx.mvvmdemo.view.UserDetailActivity
+import com.wzx.mvvmdemo.view.UserDetailActivity.Companion.Request_Code
+import com.wzx.mvvmdemo.view.adapter.OnItemClickListener
 import com.wzx.mvvmdemo.view.adapter.UserAdapter
 import com.wzx.mvvmdemo.view.dialog.LoadDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -36,63 +44,112 @@ import kotlin.collections.ArrayList
  * 更新内容：
  */
 
-class MainViewModel(applicition: Application) : AndroidViewModel(applicition) {
+class MainViewModel(applicition: Application) : BaseViewModel<MainActivity>(applicition) {
 
     //ObservableField实现双向绑定
     var name: ObservableField<String> = ObservableField("")
 
-    private var dataChange: MutableLiveData<Boolean>? = null
+    var dataChange: MutableLiveData<Boolean>? = null
 
-    var layoutManager = LinearLayoutManager(applicition)
+    var adapter = UserAdapter(object : OnItemClickListener<User> {
+        @SuppressLint("RestrictedApi")
+        override fun onItemClick(view: View?, position: Int, t: User?) {
 
-    var adapter = UserAdapter()
+            val i = Intent(view?.context, UserDetailActivity::class.java)
 
-    private val loadDialog: LoadDialog by lazy {
-        LoadDialog()
-    }
+            i.putExtra(UserDetailActivity.Param_User, t)
+
+            view.let {
+
+                val activity = it!!.context as Activity
+                val transitionActivityOptions =
+                        ActivityOptionsCompat.makeSceneTransitionAnimation(activity,
+                                it!!.findViewById(R.id.nameTV), UserDetailActivity.Transition_Name_User_Name)
+
+
+                activity!!.startActivityForResult(i, Request_Code, transitionActivityOptions.toBundle())
+            }
+        }
+
+        override fun onItemLongClick(view: View?, position: Int, t: User?) {
+            showSnackBar(view!!, "您确定要删除 \"${t?.name}\" 该用户", "确定", View.OnClickListener {
+
+                try {
+                    showLoading((view?.context as MainActivity).supportFragmentManager)
+                } catch (e: Exception) {
+                    //context强制activity可能会除错
+                    e.printStackTrace()
+                }
+
+                deleteUser(t!!)
+            })
+        }
+    })
+
 
     private val dataBase: LocalData by lazy {
         LocalData(applicition)
     }
 
-    /**
-     * 订阅
-     * @param activity 观察者
-     */
-    fun subscribe(@NonNull activity: MainActivity) {
+    override fun subscribe(t: MainActivity) {
         if (dataChange == null) {
             log("init mUsers")
             dataChange = MutableLiveData()
 
             //观察mUsers变化
-            dataChange?.observe(activity, Observer<Boolean> {
+            dataChange?.observe(t, Observer<Boolean> {
                 //监听到变化后，更新用户列表
                 it.let {
-                    if (it!!) {
-                        showLoading(activity.supportFragmentManager)
-
-                        dataBase.getUsers()
-                                .delay(1000, TimeUnit.MILLISECONDS)
-                                .subscribeOn(Schedulers.newThread())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(object : BaseObserver<List<User>>() {
-                                    override fun onSuccess(t: List<User>) {
-                                        name.set("")
-                                        adapter.addData(ArrayList(t))
-                                        dimissLoading()
-                                    }
-
-                                    override fun onFail(msg: String?) {
-                                        log(msg!!)
-                                        dimissLoading()
-                                    }
-                                })
-                    }
+                    showLoading(t.supportFragmentManager)
+                    queryUser()
                 }
             })
         }
 
-        dataChange?.value = true
+        dataChange.let {
+            it!!.value = true
+        }
+    }
+
+    /**
+     * 查询所有用户
+     */
+    private fun queryUser() {
+        dataBase.queryUsers()
+                .delay(1000, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : BaseObserver<List<User>>() {
+                    override fun onSuccess(t: List<User>) {
+                        name.set("")
+                        adapter.addData(ArrayList(t))
+                        dimissLoading()
+                    }
+
+                    override fun onFail(msg: String?) {
+                        log(msg!!)
+                        dimissLoading()
+                    }
+                })
+    }
+
+    /**
+     * 删除用户
+     */
+    private fun deleteUser(user: User) {
+        dataBase.deleteUser(user)
+                .delay(1, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : BaseObserver<Boolean>() {
+                    override fun onSuccess(t: Boolean) {
+                        dataChange?.value = true
+                    }
+
+                    override fun onFail(msg: String?) {
+                        log(msg!!)
+                    }
+                })
     }
 
     /**
@@ -100,7 +157,7 @@ class MainViewModel(applicition: Application) : AndroidViewModel(applicition) {
      */
     fun addUser(view: View) {
         if (TextUtils.isEmpty(name.get())) {
-            showSnackBar(view, "name is null")
+            showSnackBar(view, "name is null", null, null)
             return
         }
 
@@ -117,7 +174,7 @@ class MainViewModel(applicition: Application) : AndroidViewModel(applicition) {
         user.name = name.get()
         user.createTime = Date()
 
-        dataBase.addUser(user)
+        dataBase.insertUser(user)
                 //延迟1秒
                 .delay(1, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.newThread())
@@ -133,46 +190,4 @@ class MainViewModel(applicition: Application) : AndroidViewModel(applicition) {
                 })
     }
 
-    /**
-     * 显示LoadDialog
-     * @param fragmentManager
-     */
-    private fun showLoading(fragmentManager: FragmentManager) {
-        if (loadDialog == null) {
-            loadDialog.show(fragmentManager, LoadDialog.TAG)
-        } else {
-            if (!loadDialog.isVisible) {
-                //当LoadDialog没有显示时，才触发显示
-                loadDialog.show(fragmentManager, LoadDialog.TAG)
-            }
-        }
-    }
-
-    /**
-     * LoadDialog消失
-     */
-    private fun dimissLoading() {
-        loadDialog.let {
-            //当LoadDialog显示时，才触发消失
-            if (it.isVisible) it.dismiss()
-        }
-    }
-
-    /**
-     * 关闭软键盘
-     */
-    private fun closeSoftBoard(context: Context) {
-        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.let {
-            inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
-        }
-    }
-
-    private fun showSnackBar(view: View, msg: String) {
-        Snackbar.make(view, msg, Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun log(msg: String) {
-        Log.i(this.javaClass.simpleName, msg)
-    }
 }

@@ -1,5 +1,6 @@
 package com.wzx.mvvmdemo.model
 
+import android.arch.persistence.room.Update
 import android.support.annotation.WorkerThread
 import com.wzx.mvvmdemo.model.bean.User
 import io.reactivex.Observable
@@ -15,9 +16,14 @@ import io.reactivex.Observable
 interface IUser {
 
     @WorkerThread
-    fun addUser(user: User): Observable<Boolean>
+    fun insertUser(user: User): Observable<Boolean>
 
     @WorkerThread
-    fun getUsers(): Observable<List<User>>
+    fun queryUsers(): Observable<List<User>>
 
+    @Update
+    fun updateUser(user: User): Observable<Boolean>
+
+    @WorkerThread
+    fun deleteUser(user: User): Observable<Boolean>
 }
